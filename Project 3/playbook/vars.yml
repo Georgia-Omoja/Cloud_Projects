@@ -1,0 +1,11 @@
+# host user
+ansible_host_user: root
+
+# This tells us the version of the php and it dependencies to install
+php_version: 8.1
+
+# Variables for MySQL Setup
+root_password: MYSQL_ROOT_PASSWORD
+mysql_app_db: prestashop
+mysql_app_user: prestashop_db_user
+mysql_app_user_password: password

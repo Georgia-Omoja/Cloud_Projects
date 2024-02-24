@@ -1,0 +1,46 @@
+- name: Laravel Deployment
+  hosts: app
+  remote_user: "{{ ansible_host_user }}"
+  become: 'true'
+  become_method: sudo
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Updating software repository
+      apt:
+         update_cache: yes
+         upgrade: yes
+
+    - name: Installing PREREQUISITES FOR PHP REPOSITORY
+      apt:
+         name: ['ca-certificates', 'apt-transport-https', 'software-properties-common']
+         state: latest
+
+    - name: Updating software repository
+      apt: update_cache=yes
+
+    - name: Installing LAMP, MYSQL and PHP dependencies
+      apt:
+         name: ['git', 'unzip', 'apache2', 'php{{php_version}}', 'php{{php_version}}-mbstring', 'php{{php_version}}-xml', 'php{{php_version}}-zip', 'php{{php_version}}-gd', 'php{{php_version}}-dev', 'php{{php_version}}-curl', 'php{{php_version}}-mysql', 'libapache2-mod-php']
+
+    - name: Making sure apache service is running
+      service:
+          state: started
+          name: apache2
+
+    - name: Set up Prestashop directory
+      shell: cd var/www/html
+
+    - name: Installing prestashop
+      shell: curl -LO https://github.com/PrestaShop/PrestaShop/releases/download/1.7.8.11/prestashop_1.7.8.11.zip
+
+    - name: Unzipinp Prestashop file
+      shell: unzip prestashop.zip
+
+    - name: Setting directory permissions
+      shell: |
+         chown -R www-data:www-data /var/www/html/
+         chmod -R 755 /var/www/html/
+         a2enmod rewrite
+         systemctl restart apache2.service
+         rm -rf index.html
